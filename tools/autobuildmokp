@@ -1,0 +1,18 @@
+_build-mokp() 
+{
+    local cur prev opts
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    opts="$(ls vendor/mokp/dependencies/ | sed -e 's:\.[^./]*$::' | sed ':a;N;$!ba;s/\n/ /g')"
+
+    if [[ ${cur} == * ]] ; then
+        COMPREPLY=( $(compgen -W '${opts}' ${cur}) )
+        return 0
+    fi
+}
+complete -F _build-mokp ./build-mokp.sh
+
+# to use this
+# add a line like this to your ~/.bashrc
+# source /home/[user]/[path]/[to]/[src]/vendor/mokp/tools/autobuildmokp 
+
