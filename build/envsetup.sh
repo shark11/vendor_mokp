@@ -1,11 +1,11 @@
-# slim functions that extend build/envsetup.sh
+# mokp functions that extend build/envsetup.sh
 
-function slim_device_combos()
+function mokp_device_combos()
 {
     local T list_file variant device
 
     T="$(gettop)"
-    list_file="${T}/vendor/slim/slim.devices"
+    list_file="${T}/vendor/mokp/mokp.devices"
     variant="userdebug"
 
     if [[ $1 ]]
@@ -27,45 +27,45 @@ function slim_device_combos()
     if [[ ! -f "${list_file}" ]]
     then
         echo "unable to find device list: ${list_file}"
-        list_file="${T}/vendor/slim/slim.devices"
+        list_file="${T}/vendor/mokp/mokp.devices"
         echo "defaulting device list file to: ${list_file}"
     fi
 
     while IFS= read -r device
     do
-        add_lunch_combo "slim_${device}-${variant}"
+        add_lunch_combo "mokp_${device}-${variant}"
     done < "${list_file}"
 }
 
-function slim_rename_function()
+function mokp_rename_function()
 {
-    eval "original_slim_$(declare -f ${1})"
+    eval "original_mokp_$(declare -f ${1})"
 }
 
-function _slim_build_hmm() #hidden
+function _mokp_build_hmm() #hidden
 {
     printf "%-8s %s" "${1}:" "${2}"
 }
 
-function slim_append_hmm()
+function mokp_append_hmm()
 {
-    HMM_DESCRIPTIVE=("${HMM_DESCRIPTIVE[@]}" "$(_slim_build_hmm "$1" "$2")")
+    HMM_DESCRIPTIVE=("${HMM_DESCRIPTIVE[@]}" "$(_mokp_build_hmm "$1" "$2")")
 }
 
-function slim_add_hmm_entry()
+function mokp_add_hmm_entry()
 {
     for c in ${!HMM_DESCRIPTIVE[*]}
     do
         if [[ "${1}" == $(echo "${HMM_DESCRIPTIVE[$c]}" | cut -f1 -d":") ]]
         then
-            HMM_DESCRIPTIVE[${c}]="$(_slim_build_hmm "$1" "$2")"
+            HMM_DESCRIPTIVE[${c}]="$(_mokp_build_hmm "$1" "$2")"
             return
         fi
     done
-    slim_append_hmm "$1" "$2"
+    mokp_append_hmm "$1" "$2"
 }
 
-function slimremote()
+function mokpremote()
 {
     local proj pfx project
 
@@ -74,7 +74,7 @@ function slimremote()
         echo "Not in a git directory. Please run this from an Android repository you wish to set up."
         return
     fi
-    git remote rm slim 2> /dev/null
+    git remote rm mokp 2> /dev/null
 
     proj="$(pwd -P | sed "s#$ANDROID_BUILD_TOP/##g")"
 
@@ -84,8 +84,8 @@ function slimremote()
 
     project="${proj//\//_}"
 
-    git remote add slim "git@github.com:SlimRoms/$pfx$project"
-    echo "Remote 'slim' created"
+    git remote add mokp "git@github.com:mokp/$pfx$project"
+    echo "Remote 'mokp' created"
 }
 
 function cmremote()
@@ -145,11 +145,11 @@ function cafremote()
     echo "Remote 'caf' created"
 }
 
-function slim_push()
+function mokp_push()
 {
     local branch ssh_name path_opt proj
     branch="lp5.1"
-    ssh_name="slim_review"
+    ssh_name="mokp_review"
     path_opt=
 
     if [[ "$1" ]]
@@ -167,25 +167,25 @@ function slim_push()
         proj="android_$proj"
     fi
 
-    git $path_opt push "ssh://${ssh_name}/SlimRoms/$proj" "HEAD:refs/for/$branch"
+    git $path_opt push "ssh://${ssh_name}/mokp/$proj" "HEAD:refs/for/$branch"
 }
 
 
-slim_rename_function hmm
+mokp_rename_function hmm
 function hmm() #hidden
 {
     local i T
     T="$(gettop)"
-    original_slim_hmm
+    original_mokp_hmm
     echo
 
-    echo "vendor/slim extended functions. The complete list is:"
-    for i in $(grep -P '^function .*$' "$T/vendor/slim/build/envsetup.sh" | grep -v "#hidden" | sed 's/function \([a-z_]*\).*/\1/' | sort | uniq); do
+    echo "vendor/mokp extended functions. The complete list is:"
+    for i in $(grep -P '^function .*$' "$T/vendor/mokp/build/envsetup.sh" | grep -v "#hidden" | sed 's/function \([a-z_]*\).*/\1/' | sort | uniq); do
         echo "$i"
     done |column
 }
 
-slim_append_hmm "slimremote" "Add a git remote for matching SLIM repository"
-slim_append_hmm "cmremote" "Add a git remote for matching CM repository"
-slim_append_hmm "aospremote" "Add git remote for matching AOSP repository"
-slim_append_hmm "cafremote" "Add git remote for matching CodeAurora repository."
+mokp_append_hmm "mokpremote" "Add a git remote for matching mokp repository"
+mokp_append_hmm "cmremote" "Add a git remote for matching CM repository"
+mokp_append_hmm "aospremote" "Add git remote for matching AOSP repository"
+mokp_append_hmm "cafremote" "Add git remote for matching CodeAurora repository."
